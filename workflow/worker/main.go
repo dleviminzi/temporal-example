@@ -16,13 +16,18 @@ func main() {
 	}
 	defer c.Close()
 
-	w := worker.New(c, "greeting-tasks", worker.Options{})
+	w := worker.New(c, "greetfarewell-tasks", worker.Options{})
 
-	w.RegisterWorkflow(farewell.GreetSomeone)
+	// parent
+	w.RegisterWorkflow(farewell.GreetFarewell)
+
+	// children
+	w.RegisterWorkflow(farewell.GreetWorkflow)
+	w.RegisterWorkflow(farewell.FarewellWorkflow)
+
+	// activities
 	w.RegisterActivity(farewell.GreetInSpanish)
 	w.RegisterActivity(farewell.FarewellInSpanish)
-
-	// TODO: register your Activity
 
 	err = w.Run(worker.InterruptCh())
 	if err != nil {

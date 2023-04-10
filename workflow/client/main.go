@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"worker/farewell"
@@ -18,45 +17,55 @@ func main() {
 	}
 	defer c.Close()
 
-	options := client.StartWorkflowOptions{
-		ID:        "greeting-workflow",
-		TaskQueue: "greeting-tasks",
+	// start parent workflow execution
+	var result string
+	optionsPC := client.StartWorkflowOptions{
+		ID:        "parent-child-greetfarewell-workflow",
+		TaskQueue: "greetfarewell-tasks",
 	}
-
-	we, err := c.ExecuteWorkflow(context.Background(), options, farewell.GreetSomeone, os.Args[1])
+	wPC, err := c.ExecuteWorkflow(context.Background(), optionsPC, farewell.GreetFarewell)
 	if err != nil {
 		log.Fatalln("Unable to execute workflow", err)
 	}
-	log.Println("Started workflow", "WorkflowID", we.GetID(), "RunID", we.GetRunID())
+	log.Println("Started workflow", "WorkflowID", wPC.GetID(), "RunID", wPC.GetRunID())
 
-	// wait a bit and then send leaving signal
-	i := 0
-	s := farewell.LeavingSignal{
-		IsLeaving: false,
+	// send user greet input for first child workflow
+	greetInputSignal := farewell.GreetInputSignal{
+		Name:      "daniel",
+		GreetDone: true,
+	}
+	err = c.SignalWorkflow(context.Background(), wPC.GetID(), wPC.GetRunID(), "greet-input-signal", greetInputSignal)
+	if err != nil {
+		log.Fatalln("Error sending the Signal", err)
+		return
+	}
+
+	// wait and send leaving signal
+	time.Sleep(time.Second)
+	leavingSignal := farewell.LeavingSignal{
+		IsLeaving: true,
 		Message:   "still here",
 	}
-
-	for i < 5 {
-
-		if i == 4 {
-			s.IsLeaving = true
-			s.Message = "headed out"
-		}
-
-		err = c.SignalWorkflow(context.Background(), we.GetID(), we.GetRunID(), "leaving-signal", s)
-		if err != nil {
-			log.Fatalln("Error sending the Signal", err)
-			return
-		}
-
-		time.Sleep(time.Second)
-		i++
-	}
-
-	var result string
-	err = we.Get(context.Background(), &result)
+	err = c.SignalWorkflow(context.Background(), wPC.GetID(), wPC.GetRunID(), "leaving-signal", leavingSignal)
 	if err != nil {
-		log.Fatalln("Unable get workflow result", err)
+		log.Fatalln("Error sending the Signal", err)
+		return
 	}
-	log.Println("Workflow result:", result)
+
+	// send user farewell input for second child workflow
+	farewellInputSignal := farewell.FarewellInputSignal{
+		FarewellDone: true,
+	}
+	err = c.SignalWorkflow(context.Background(), wPC.GetID(), wPC.GetRunID(), "farewell-input-signal", farewellInputSignal)
+	if err != nil {
+		log.Fatalln("Error sending the Signal", err)
+		return
+	}
+
+	// get result of the workflows
+	err = wPC.Get(context.Background(), &result)
+	if err != nil {
+		log.Fatalln("Unable get parent child workflow result", err)
+	}
+	log.Println("Parent child workflow result:", result)
 }
