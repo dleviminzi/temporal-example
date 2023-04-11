@@ -4,6 +4,7 @@ const input = writable({
   greet: "daniel",
   greeted: false,
   farewell: "daniel",
+  goodbye: false,
 })
 
 export {input}

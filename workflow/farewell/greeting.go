@@ -27,13 +27,6 @@ func GreetFarewell(ctx workflow.Context) (string, error) {
 		return "", err
 	}
 
-	// create signal channel which will block until signal is received
-	var leaveSignal LeavingSignal
-	leaveInputChannel := workflow.GetSignalChannel(ctx, "leaving-signal")
-	for !leaveSignal.IsLeaving {
-		leaveInputChannel.Receive(ctx, &leaveSignal)
-	}
-
 	// parent blocks while waiting for user input needed to complete second workflow
 	var farewellInput FarewellInputSignal
 	farewellInputChannel := workflow.GetSignalChannel(ctx, "farewell-input-signal")
@@ -47,7 +40,7 @@ func GreetFarewell(ctx workflow.Context) (string, error) {
 		return "", err
 	}
 
-	sumResponse := "\n" + greetingResponse + "\n" + farewellResponse
+	sumResponse := greetingResponse + " " + farewellResponse
 	return sumResponse, nil
 }
 

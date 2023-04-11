@@ -13,7 +13,7 @@ func spanishGreetingHandler(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["name"]
 	if ok {
 		name := keys[0]
-		translation := fmt.Sprintf("¡Hola, %s!", name)
+		translation := fmt.Sprintf("Hola, %s", name)
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, translation)
 	} else {
@@ -25,7 +25,7 @@ func spanishFarewellHandler(w http.ResponseWriter, r *http.Request) {
 	keys, ok := r.URL.Query()["name"]
 	if ok {
 		name := keys[0]
-		translation := fmt.Sprintf("¡Adios, %s!", name)
+		translation := fmt.Sprintf("Adios, %s", name)
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, translation)
 	} else {
