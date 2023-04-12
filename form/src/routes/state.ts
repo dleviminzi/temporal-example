@@ -1,10 +1,14 @@
 import { writable } from 'svelte/store'
 
-const input = writable({
-  greet: "daniel",
-  greeted: false,
-  farewell: "daniel",
-  goodbye: false,
+export const workflowData = writable({
+    greet: "daniel",
+    greeted: false,
+    farewell: "daniel",
+    goodbye: false,
 })
 
-export {input}
+export const pageData = writable({
+    id: 0,
+    wfQuery: 0
+})
+
