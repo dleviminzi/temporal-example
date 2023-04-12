@@ -2,7 +2,7 @@
 
 This project is a toy example showcasing how [Temporal](https://docs.temporal.io/) could be used effectively as a backend for a long lived form that requires actions to be taken at various stages of completeness. 
 
-Anyway, this project has four parts:
+Anyway, this project has five parts:
 
 ## The cluster
 
