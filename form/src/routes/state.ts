@@ -9,6 +9,7 @@ export const workflowData = writable({
 
 export const pageData = writable({
     id: 0,
-    wfQuery: 0
+    idQuery: 0,
+    idRunQuery: 0
 })
 

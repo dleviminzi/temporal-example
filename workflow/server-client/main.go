@@ -184,6 +184,7 @@ func (s Server) startWorkflow(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln("Unable to execute workflow", err)
 	}
 	log.Println("Started workflow", "WorkflowID", wPC.GetID(), "RunID", wPC.GetRunID())
+	fmt.Fprintf(w, "{\"run_id\": \"%s\"}", wPC.GetRunID())
 }
 
 func (s Server) serve() {
